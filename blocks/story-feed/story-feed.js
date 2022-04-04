@@ -1,4 +1,5 @@
-import { createOptimizedPicture, lookupPages, readBlockConfig } from '../../scripts/scripts.js';
+import { lookupPages } from '../../scripts/scripts.js';
+import { createOptimizedPicture, readBlockConfig } from '../../scripts/core-scripts.js';
 
 function createCard(row) {
   const card = document.createElement('article');

@@ -1,4 +1,4 @@
-import { getMetadata, toClassName } from '../../scripts/scripts.js';
+import { getMetadata, toClassName } from '../../scripts/core-scripts.js';
 
 export default async function decorate(block) {
   const ledeBlock = block;

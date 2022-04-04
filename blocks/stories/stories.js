@@ -1,6 +1,9 @@
 import {
-  createOptimizedPicture, lookupPages,
+  lookupPages,
 } from '../../scripts/scripts.js';
+import {
+  createOptimizedPicture,
+} from '../../scripts/core-scripts.js';
 import colormap from '../../scripts/colormap.js';
 
 function createCard(row) {

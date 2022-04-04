@@ -1,4 +1,4 @@
-import { getMetadata } from './scripts.js';
+import { getMetadata } from './core-scripts.js';
 import setBodyColor from './body-color.js';
 
 function setPageBackgroundColor() {

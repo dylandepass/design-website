@@ -1,45 +1,77 @@
+import { LitElement, createRef, html, map, ref } from '../../scripts/lit.min.js';
 import setBodyColor from '../../scripts/body-color.js';
-import { createOptimizedPicture, lookupPages, loadScript } from '../../scripts/scripts.js';
+import { lookupPages } from '../../scripts/scripts.js';
+import { createOptimizedPicture, loadScript } from '../../scripts/core-scripts.js';
 
-class Carousel {
-  initialized = false;
+/* eslint-disable class-methods-use-this */
 
-  proxy;
+export class Carousel extends LitElement {
+  static properties = {
+    pathNames: { type: Array },
+    initialized: { state: true, type: Boolean },
+    slideDelay: { state: true, type: Number },
+    slideDuration: { state: true, type: Number },
+    snapX: { state: true, type: Number },
+    stories: { state: true, type: Array },
+    didScroll: { state: true, type: Boolean },
+  };
 
-  timer;
+  constructor() {
+    super();
+    this.initialized = false;
+    this.slideDelay = 8.5;
+    this.slideDuration = 1.0;
+    this.proxy = document.createElement('div');
+    this.prevButton = createRef();
+    this.nextButton = createRef();
+    this.carouselGroup = createRef();
+  }
 
-  animation;
+  createRenderRoot() {
+    /**
+     * Render template without shadow DOM. Note that shadow DOM features like
+     * encapsulated CSS and slots are unavailable.
+     */
+    return this;
+  }
 
-  slideDelay = 8.5;
+  async connectedCallback() {
+    super.connectedCallback();
+    this.stories = await lookupPages(this.pathNames);
 
-  slideDuration = 1;
+    const firstStory = this.stories[0];
+    setBodyColor(firstStory.color);
+    document.documentElement.style.setProperty('--header-color', firstStory.color);
 
-  snapX;
+    this.loadCarousel(this);
+    this.checkScrollIndicator();
 
-  backgroundContianer;
+    window.addEventListener('resize', this.checkScrollIndicator);
+    window.addEventListener('scroll', this.hideScrollIndicator);
+  }
 
-  gsap;
+  async loadCarousel() {
+    const GSAP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js';
+    const GSAP_CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/CSSRulePlugin.min.js';
 
-  constructor(ui) {
-    const prevButton = document.createElement('div');
-    prevButton.classList.add('carousel-btn');
-    prevButton.classList.add('carousel-btn-prev');
-    ui.appendChild(prevButton);
-
-    const nextButton = document.createElement('div');
-    nextButton.classList.add('carousel-btn');
-    nextButton.classList.add('carousel-btn-next');
-    ui.appendChild(nextButton);
-
-    nextButton.addEventListener('click', () => {
-      this.animateSlides(-1);
-      this.timer.kill();
+    loadScript(GSAP_URL, () => {
+      loadScript(GSAP_CSS_URL, () => {
+        this.gsap = window.gsap;
+        this.slides = document.querySelectorAll('.carousel-slide');
+        const interval = setInterval(() => {
+          if (this.slides[0].offsetWidth > 0) {
+            clearInterval(interval);
+            this.init();
+          }
+        }, 10);
+      });
     });
+  }
 
-    prevButton.addEventListener('click', () => {
-      this.animateSlides(1);
-      this.timer.kill();
-    });
+  updateProgress() {
+    const { gsap } = window;
+    const time = this.progressWrap(gsap.getProperty(this.proxy, 'x') / this.wrapWidth);
+    this.animation.progress(time);
   }
 
   init() {
@@ -47,24 +79,20 @@ class Carousel {
       return;
     }
 
-    const { gsap } = window;
+    this.carouselGroup.value.classList.remove('hidden');
 
-    const slideHolder = document.querySelector('.carousel-group');
-    slideHolder.classList.remove('hidden');
-
-    this.slides = document.querySelectorAll('.carousel-slide');
-    this.progressWrap = gsap.utils.wrap(0, 1);
+    this.progressWrap = this.gsap.utils.wrap(0, 1);
     this.numSlides = this.slides.length;
 
-    gsap.set(this.slides, {
+    this.gsap.set(this.slides, {
       // backgroundColor: 'random([red, blue, green, purple, orange, yellow, lime, pink])',
       xPercent: (i) => i * 100,
     });
 
-    this.wrap = gsap.utils.wrap(-100, (this.numSlides - 1) * 100);
-    this.timer = gsap.delayedCall(this.slideDelay, () => this.autoPlay());
+    this.wrap = this.gsap.utils.wrap(-100, (this.numSlides - 1) * 100);
+    this.timer = this.gsap.delayedCall(this.slideDelay, () => this.autoPlay());
 
-    this.animation = gsap.timeline({
+    this.animation = this.gsap.timeline({
       paused: true,
       repeat: -1,
     });
@@ -78,21 +106,13 @@ class Carousel {
       },
     });
 
-    this.proxy = document.createElement('div');
-    this.slideAnimation = gsap.to({}, {});
-    this.colorAnimation = gsap.to({}, {});
+    this.slideAnimation = this.gsap.to({}, {});
+    this.colorAnimation = this.gsap.to({}, {});
     this.slideWidth = 0;
     this.wrapWidth = 0;
-
     this.initialized = true;
 
     this.resize();
-  }
-
-  updateProgress() {
-    const { gsap } = window;
-    const time = this.progressWrap(gsap.getProperty(this.proxy, 'x') / this.wrapWidth);
-    this.animation.progress(time);
   }
 
   animateSlides(direction) {
@@ -140,130 +160,14 @@ class Carousel {
     this.animateSlides(0);
     this.slideAnimation.progress(1);
   }
-}
 
-async function loadCarousel(carousel) {
-  const GSAP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js';
-  const GSAP_CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/CSSRulePlugin.min.js';
+  changeSlide(direction) {
+    this.animateSlides(direction);
+    this.timer.kill();
+  }
 
-  loadScript(GSAP_URL, () => {
-    loadScript(GSAP_CSS_URL, () => {
-      const slides = document.querySelectorAll('.carousel-slide');
-      const interval = setInterval(() => {
-        if (slides[0].offsetWidth > 0) {
-          clearInterval(interval);
-          carousel.init();
-        }
-      }, 10);
-    });
-  });
-}
-
-export default async function decorate(block) {
-  const pathnames = [...block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
-  block.textContent = '';
-
-  const stories = await lookupPages(pathnames);
-
-  const container = document.createElement('div');
-  container.classList.add('carousel-group', 'hidden');
-  block.append(container);
-
-  const ul = document.createElement('ul');
-  ul.classList.add('carousel-slides');
-  ul.style.width = `${stories.length * 100}%`;
-  container.append(ul);
-
-  const ui = document.createElement('div');
-  ui.classList.add('carousel-ui');
-  container.append(ui);
-
-  const uiInner = document.createElement('div');
-  uiInner.classList.add('carousel-ui-inner');
-  ui.append(uiInner);
-
-  const scrollDown = document.createElement('div');
-  scrollDown.classList.add('carousel-indicator-scroll');
-  scrollDown.innerHTML = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="20.702" height="12.413" viewBox="0 0 20.702 12.413">
-  <g id="Chevron" transform="translate(-154.009 -37.009)">
-    <rect id="Frame" width="20" height="12" transform="translate(154.219 37.331)" fill="currentColor" opacity="0"/>
-    <path id="Shape" d="M20.708,2.087A2.074,2.074,0,0,0,17.168.615L10.361,7.429,3.553.615A2.078,2.078,0,1,0,.615,3.553l8.28,8.259a2.074,2.074,0,0,0,2.932,0l8.28-8.259A2.074,2.074,0,0,0,20.708,2.087Z" transform="translate(154.003 37.003)" fill="currentColor"/>
-  </g>
-</svg>
-`;
-  uiInner.appendChild(scrollDown);
-
-  const carousel = new Carousel(uiInner);
-
-  stories.forEach((row, i) => {
-    const li = document.createElement('li');
-    const bgColor = row.color !== '' ? row.color : '#fff';
-
-    li.dataset.color = bgColor;
-    li.classList.add('carousel-slide');
-
-    if (i === 0) {
-      setBodyColor(bgColor);
-      document.documentElement.style.setProperty('--header-color', bgColor);
-    }
-
-    const slideContainer = document.createElement('div');
-    slideContainer.classList.add('carousel-slide-container');
-
-    const slideContent = document.createElement('div');
-    slideContent.classList.add('carousel-slide-content');
-
-    const tag = row.tag ? `${row.tag}` : '';
-
-    const slideCopy = document.createElement('div');
-    slideCopy.classList.add('carousel-slide-copy');
-    slideCopy.innerHTML = `
-    <span class="cmp-stories-card__tag">${tag}</span>
-    <h2 class="carousel-stories-card__title"><a href="${row.path}">${row.title}</a></h2>
-    <div class="cmp-stories-card__intro">${row.subtitle}</div>
-    <div class="cmp-stories-card__author">by ${row.author}</div>
-    <div>${row.authorTitle}</div>`;
-
-    slideContent.append(slideCopy);
-
-    const pictureHolder = document.createElement('div');
-    pictureHolder.classList.add('carousel-picture-holder');
-    slideContent.append(pictureHolder);
-
-    const pictureLink = document.createElement('a');
-    pictureLink.setAttribute('href', `${row.path}`);
-    pictureHolder.append(pictureLink);
-
-    pictureLink.append(createOptimizedPicture(row.image, row.title, !i));
-
-    slideContainer.append(slideContent);
-    li.append(slideContainer);
-
-    ul.append(li);
-  });
-
-  const gradient = document.createElement('div');
-  gradient.classList.add('carousel-gradient');
-  block.append(gradient);
-
-  gradient.innerHTML = `<svg class="carousel-gradient-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-  <defs>
-      <linearGradient id="Gradient" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stop-color="white"/>
-        <stop offset="100%" stop-color="black"/>
-      </linearGradient>
-      <mask id="mask">
-        <rect x="0" y="0" width="100" height="100" fill="url(#Gradient)"/>
-      </mask>
-  </defs>
-  <rect class="svg-bg" x="0" y="0" width="100" height="100" fill="red" mask="url(#mask)"/>
-</svg>`;
-
-  let didScroll = false;
-
-  function checkScrollIndicator() {
-    if (didScroll) {
+  checkScrollIndicator() {
+    if (this.didScroll) {
       return;
     }
 
@@ -278,20 +182,80 @@ export default async function decorate(block) {
     }
   }
 
-  function hideScrollIndicator() {
-    if (!didScroll) {
+  hideScrollIndicator() {
+    if (!this.didScroll) {
       const indicator = document.querySelector('.carousel-indicator-scroll');
       indicator.classList.remove('show');
     }
 
-    didScroll = true;
+    this.didScroll = true;
   }
 
-  window.addEventListener('resize', checkScrollIndicator);
-  window.addEventListener('scroll', hideScrollIndicator);
+  renderSlide(story, i) {
+    return html`
+      <li data-color=${story.color !== '' ? story.color : '#fff'} class="carousel-slide">
+          <div class="carousel-slide-container">
+            <div class="carousel-slide-content">
+                <div class="carousel-slide-copy">
+                  <span class="cmp-stories-card__tag">${story.tag}</span>
+                  <h2 class="carousel-stories-card__title"><a href="/stories/leading-design/what-drives-adobe-design">${story.title}</a></h2>
+                  <div class="cmp-stories-card__intro">${story.description}</div>
+                  <div class="cmp-stories-card__author">${story.author}</div>
+                </div>
+                <div class="carousel-picture-holder">
+                  <a href=${story.path}>${createOptimizedPicture(story.image, story.title, !i)}</a>
+                </div>
+            </div>
+          </div>
+      </li>
+    `;
+  }
 
-  setTimeout(() => {
-    loadCarousel(carousel);
-    checkScrollIndicator();
-  }, 4000);
+  render() {
+    return html`
+        <div class="carousel-group" class="hidden" ${ref(this.carouselGroup)}>
+            <ul class="carousel-slides" style="width: 300%;">
+                ${map(this.stories, (slide, index) => this.renderSlide(slide, index))}
+            </ul>
+            <div class="carousel-ui">
+              <div class="carousel-ui-inner">
+                  <div class="carousel-indicator-scroll">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20.702" height="12.413" viewBox="0 0 20.702 12.413">
+                        <g id="Chevron" transform="translate(-154.009 -37.009)">
+                          <rect id="Frame" width="20" height="12" transform="translate(154.219 37.331)" fill="currentColor" opacity="0"></rect>
+                          <path id="Shape" d="M20.708,2.087A2.074,2.074,0,0,0,17.168.615L10.361,7.429,3.553.615A2.078,2.078,0,1,0,.615,3.553l8.28,8.259a2.074,2.074,0,0,0,2.932,0l8.28-8.259A2.074,2.074,0,0,0,20.708,2.087Z" transform="translate(154.003 37.003)" fill="currentColor"></path>
+                        </g>
+                    </svg>
+                  </div>
+                  <div class="carousel-btn carousel-btn-prev" @click=${() => this.changeSlide(1)}></div>
+                  <div class="carousel-btn carousel-btn-next" @click=${() => this.changeSlide(-1)}></div>
+              </div>
+            </div>
+        </div>
+        <div class="carousel-gradient">
+            <svg class="carousel-gradient-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                  <linearGradient id="Gradient" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="white"></stop>
+                    <stop offset="100%" stop-color="black"></stop>
+                  </linearGradient>
+                  <mask id="mask">
+                    <rect x="0" y="0" width="100" height="100" fill="url(#Gradient)"></rect>
+                  </mask>
+              </defs>
+              <rect class="svg-bg" x="0" y="0" width="100" height="100" fill="red" mask="url(#mask)"></rect>
+            </svg>
+        </div>
+    `;
+  }
+}
+
+customElements.define('carousel-element', Carousel);
+
+export default function decorate($block) {
+  const pathNames = [...$block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
+  const carouselElement = document.createElement('carousel-element');
+  carouselElement.setAttribute('pathNames', JSON.stringify(pathNames));
+  $block.innerHTML = '';
+  $block.appendChild(carouselElement);
 }

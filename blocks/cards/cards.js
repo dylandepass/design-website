@@ -1,6 +1,9 @@
 import {
-  createOptimizedPicture, lookupPages, getMetadata,
+  lookupPages,
 } from '../../scripts/scripts.js';
+import {
+  getMetadata, createOptimizedPicture,
+} from '../../scripts/core-scripts.js';
 import colormap from '../../scripts/colormap.js';
 
 export const isInclusiveDesignPage = getMetadata('theme') === 'inclusive-design';

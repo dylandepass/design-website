@@ -1,4 +1,4 @@
-import { getMetadata, loadScript } from '../../scripts/scripts.js';
+import { getMetadata, loadScript } from '../../scripts/core-scripts.js';
 
 let visibleCardArea = 250;
 
