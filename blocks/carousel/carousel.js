@@ -69,8 +69,6 @@ export class Carousel extends LitElement {
       return;
     }
 
-    this.carouselGroup.value.classList.remove('hidden');
-
     this.progressWrap = this.gsap.utils.wrap(0, 1);
     this.numSlides = this.slides.length;
 
@@ -103,6 +101,8 @@ export class Carousel extends LitElement {
     this.initialized = true;
 
     this.resize();
+
+    this.carouselGroup.value.classList.remove('hidden');
   }
 
   animateSlides(direction) {
@@ -203,7 +203,7 @@ export class Carousel extends LitElement {
 
   render() {
     return html`
-        <div class="carousel-group" class="hidden" ${ref(this.carouselGroup)}>
+        <div class="carousel-group hidden" ${ref(this.carouselGroup)}>
             <ul class="carousel-slides" style="width: 300%;">
                 ${map(this.stories, (slide, index) => this.renderSlide(slide, index))}
             </ul>
