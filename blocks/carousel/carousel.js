@@ -8,12 +8,7 @@ import { createOptimizedPicture, loadScript } from '../../scripts/core-scripts.j
 export class Carousel extends LitElement {
   static properties = {
     pathNames: { type: Array },
-    initialized: { state: true, type: Boolean },
-    slideDelay: { state: true, type: Number },
-    slideDuration: { state: true, type: Number },
-    snapX: { state: true, type: Number },
     stories: { state: true, type: Array },
-    didScroll: { state: true, type: Boolean },
   };
 
   constructor() {
@@ -28,10 +23,6 @@ export class Carousel extends LitElement {
   }
 
   createRenderRoot() {
-    /**
-     * Render template without shadow DOM. Note that shadow DOM features like
-     * encapsulated CSS and slots are unavailable.
-     */
     return this;
   }
 
@@ -41,7 +32,6 @@ export class Carousel extends LitElement {
 
     const firstStory = this.stories[0];
     setBodyColor(firstStory.color);
-    document.documentElement.style.setProperty('--header-color', firstStory.color);
 
     this.loadCarousel(this);
     this.checkScrollIndicator();
@@ -254,6 +244,7 @@ customElements.define('carousel-element', Carousel);
 
 export default function decorate($block) {
   const pathNames = [...$block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
+  document.documentElement.style.setProperty('--header-color', '#12358F');
   const carouselElement = document.createElement('carousel-element');
   carouselElement.setAttribute('pathNames', JSON.stringify(pathNames));
   $block.innerHTML = '';
