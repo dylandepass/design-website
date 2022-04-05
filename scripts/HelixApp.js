@@ -43,23 +43,24 @@ export const HelixApp = (superClass) => {
       initHlx();
     }
 
+    /**
+     * Render template without shadow DOM.
+     * @returns void
+     */
     createRenderRoot() {
-      /**
-       * Render template without shadow DOM. Note that shadow DOM features like
-       * encapsulated CSS and slots are unavailable.
-       */
       return this;
     }
 
     connectedCallback() {
       super.connectedCallback();
+
+      this.loadPage(document);
+
       if (this.rumEnabled) {
         sampleRUM('top');
         window.addEventListener('load', () => sampleRUM('load'));
         document.addEventListener('click', () => sampleRUM('click'));
       }
-
-      this.loadPage(document);
 
       if (window.name.includes('performance')) {
         registerPerformanceLogger();
@@ -94,8 +95,8 @@ export const HelixApp = (superClass) => {
 
       const main = doc.querySelector('main');
       if (main) {
-        this.decorateMain(main);
         await waitForLCP(this.config.lcpBlocks);
+        this.decorateMain(main);
       }
 
       await this.loadLazy(doc);
@@ -109,9 +110,25 @@ export const HelixApp = (superClass) => {
     decorateMain(main) {
       // forward compatible pictures redecoration
       this.decoratePictures(main);
+      this.removeStylingFromImages(main);
+      this.makeLinksRelative(main, this.config.productionDomains);
+      this.decorateSections(main);
+      this.decorateBlocks(main);
+    }
+
+    removeStylingFromImages(main) {
       removeStylingFromImages(main);
-      makeLinksRelative(main, this.config.productionDomains);
+    }
+
+    makeLinksRelative(main, productionDomains) {
+      makeLinksRelative(main, productionDomains);
+    }
+
+    decorateSections(main) {
       decorateSections(main);
+    }
+
+    decorateBlocks(main) {
       decorateBlocks(main);
     }
 
