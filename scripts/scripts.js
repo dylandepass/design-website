@@ -117,16 +117,18 @@ document.body.appendChild(app);
 
 export async function lookupPages(pathnames) {
   if (!window.pageIndex) {
-    const resp = await fetch('/query-index.json');
-    const json = await resp.json();
+    if (!window.queryIndexJson) {
+      const resp = await fetch('/query-index.json');
+      window.queryIndexJson = await resp.json();
+    }
     const lookup = {};
-    const sheets = Object.keys(json).filter((e) => !e.startsWith(':'));
+    const sheets = Object.keys(window.queryIndexJson).filter((e) => !e.startsWith(':'));
     sheets.forEach((sh) => {
-      json[sh].data.forEach((row) => {
+      window.queryIndexJson[sh].data.forEach((row) => {
         lookup[row.path] = row;
       });
     });
-    window.pageIndex = { data: json, lookup };
+    window.pageIndex = { data: window.queryIndexJson, lookup };
   }
   const result = pathnames.map((path) => window.pageIndex.lookup[path]).filter((e) => e);
   return (result);
