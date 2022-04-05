@@ -1,57 +1,65 @@
-import {
-  lookupPages,
-} from '../../scripts/scripts.js';
-import {
-  createOptimizedPicture,
-} from '../../scripts/core-scripts.js';
+import { lookupPages } from '../../scripts/scripts.js';
+import { createOptimizedPicture } from '../../scripts/core-scripts.js';
 import colormap from '../../scripts/colormap.js';
+import { LitElement, html, map } from '../../scripts/lit.min.js';
 
-function createCard(row) {
-  const card = document.createElement('article');
-  card.classList.add('cmp-stories-card');
+/* eslint-disable class-methods-use-this */
 
-  const imageLink = document.createElement('a');
-  imageLink.href = row.path;
-  imageLink.append(createOptimizedPicture(row.image, row.title));
+export class Stories extends LitElement {
+  static properties = {
+    pathNames: { type: Array },
+    stories: { state: true, type: Array },
+  };
 
-  const cardSubTitle = `${row.subtitle ? `<p class="cmp-stories-card__intro">${row.subtitle}</p>` : ''}`;
-  const cardAuthor = `${row.author ? `<p class="cmp-stories-card__author">by ${row.author}</p>` : ''}`;
-  const cardAuthorTitle = `${row.authorTitle ? `<p class="cmp-stories-card__author-title">${row.authorTitle}</p>` : ''}`;
-  const cardBGColor = row.color !== '' ? row.color : '#fff';
-  const textColor = colormap[cardBGColor];
-  const cardTag = row.tag !== '' ? `${row.tag}` : '';
-
-  if (textColor === 'black') {
-    card.classList.add('dark-text');
-  } else {
-    card.classList.add('light-text');
+  async connectedCallback() {
+    super.connectedCallback();
+    this.stories = await lookupPages(this.pathNames);
   }
 
-  card.innerHTML = `
-    <div class="cmp-stories-card__body">
-      <span class="cmp-stories-card__tag">${cardTag}</span>
-      <h2 class="cmp-stories-card__title">
-        <a href="${row.path}">${row.title}</a>
-      </h2>
-      ${cardSubTitle}
-      <div class="cmp-stories-card__attribution">
-        ${cardAuthor}
-        ${cardAuthorTitle}
-      </div>
-    </div>
-  `;
+  createRenderRoot() {
+    return this;
+  }
 
-  card.style.backgroundColor = cardBGColor;
-  card.prepend(imageLink);
-  card.querySelector('picture').classList.add('cmp-stories-card__media');
-  return (card);
+  getPropertyText(propertyValue, className) {
+    return propertyValue ? html`<p class='${className}'>${propertyValue}</p>` : html``;
+  }
+
+  renderCard(story) {
+    const rowColor = story.color !== '' ? story.color : '#fff';
+    const textColor = colormap[rowColor];
+
+    return html`
+      <article class="cmp-stories-card ${textColor === 'black' ? 'dark-text' : 'light-text'}" style="background-color: ${rowColor}">
+        <a href=${story.path}>
+          ${createOptimizedPicture(story.image, story.title, false, [{ media: '(min-width: 400px)', width: '2000' }, { width: '750' }], ['cmp-stories-card__media'])}
+        </a>
+        <div class="cmp-stories-card__body">
+          <span class="cmp-stories-card__tag">${story.tag !== '' ? `${story.tag}` : ''}</span>
+          <h2 class="cmp-stories-card__title">
+            <a href="${story.path}">${story.title}</a>
+          </h2>
+          ${this.getPropertyText(story.subtitle, 'h2', 'cmp-stories-card__intro')}
+          <div class="cmp-stories-card__attribution">
+            ${this.getPropertyText(story.author, 'span', 'cmp-stories-card__author')}
+            ${this.getPropertyText(story.authorTitle, 'span', 'cmp-stories-card__author-title')}
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  render() {
+    return html`
+      ${map(this.stories, (story) => this.renderCard(story))}
+    `;
+  }
 }
+customElements.define('stories-element', Stories);
 
 export default async function decorate(block) {
-  const pathnames = [...block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
-  block.textContent = '';
-  const stories = await lookupPages(pathnames);
-  stories.forEach((row) => {
-    block.append(createCard(row));
-  });
+  const pathNames = [...block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
+  const storiesElement = document.createElement('stories-element');
+  storiesElement.setAttribute('pathNames', JSON.stringify(pathNames));
+  block.innerHTML = '';
+  block.appendChild(storiesElement);
 }

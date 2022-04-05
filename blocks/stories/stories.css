@@ -1,4 +1,4 @@
-.home .stories {
+.home .stories stories-element{
   background-color: transparent;
   display: grid;
   grid-template-columns: repeat(6, [col-start] 1fr);

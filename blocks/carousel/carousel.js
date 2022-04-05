@@ -40,30 +40,6 @@ export class Carousel extends LitElement {
     window.addEventListener('scroll', this.hideScrollIndicator);
   }
 
-  async loadCarousel() {
-    const GSAP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js';
-    const GSAP_CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/CSSRulePlugin.min.js';
-
-    loadScript(GSAP_URL, () => {
-      loadScript(GSAP_CSS_URL, () => {
-        this.gsap = window.gsap;
-        this.slides = document.querySelectorAll('.carousel-slide');
-        const interval = setInterval(() => {
-          if (this.slides[0].offsetWidth > 0) {
-            clearInterval(interval);
-            this.init();
-          }
-        }, 10);
-      });
-    });
-  }
-
-  updateProgress() {
-    const { gsap } = window;
-    const time = this.progressWrap(gsap.getProperty(this.proxy, 'x') / this.wrapWidth);
-    this.animation.progress(time);
-  }
-
   init() {
     if (this.initialized) {
       return;
@@ -73,7 +49,6 @@ export class Carousel extends LitElement {
     this.numSlides = this.slides.length;
 
     this.gsap.set(this.slides, {
-      // backgroundColor: 'random([red, blue, green, purple, orange, yellow, lime, pink])',
       xPercent: (i) => i * 100,
     });
 
@@ -103,6 +78,30 @@ export class Carousel extends LitElement {
     this.resize();
 
     this.carouselGroup.value.classList.remove('hidden');
+  }
+
+  async loadCarousel() {
+    const GSAP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js';
+    const GSAP_CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/CSSRulePlugin.min.js';
+
+    loadScript(GSAP_URL, () => {
+      loadScript(GSAP_CSS_URL, () => {
+        this.gsap = window.gsap;
+        this.slides = document.querySelectorAll('.carousel-slide');
+        const interval = setInterval(() => {
+          if (this.slides[0].offsetWidth > 0) {
+            clearInterval(interval);
+            this.init();
+          }
+        }, 10);
+      });
+    });
+  }
+
+  updateProgress() {
+    const { gsap } = window;
+    const time = this.progressWrap(gsap.getProperty(this.proxy, 'x') / this.wrapWidth);
+    this.animation.progress(time);
   }
 
   animateSlides(direction) {
