@@ -95,8 +95,8 @@ export const HelixApp = (superClass) => {
 
       const main = doc.querySelector('main');
       if (main) {
-        await waitForLCP(this.config.lcpBlocks);
         this.decorateMain(main);
+        await waitForLCP(this.config.lcpBlocks);
       }
 
       await this.loadLazy(doc);
