@@ -13,6 +13,10 @@
   margin-bottom: 12px;
 }
 
+.home .stories-container {
+    margin-top: -550px;
+}
+
 .home .cmp-stories-card {
   grid-column: col-start 1 / span 6;
 }

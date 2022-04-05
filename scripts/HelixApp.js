@@ -43,14 +43,6 @@ export const HelixApp = (superClass) => {
       initHlx();
     }
 
-    /**
-     * Render template without shadow DOM.
-     * @returns void
-     */
-    createRenderRoot() {
-      return this;
-    }
-
     connectedCallback() {
       super.connectedCallback();
 

@@ -12,7 +12,7 @@
 
 /* eslint-disable class-methods-use-this */
 
-import { LitElement } from './lit.min.js';
+import { LitElement, html } from './lit.min.js';
 import { getMetadata } from './core-scripts.js';
 import { HelixApp } from './HelixApp.js';
 
@@ -96,6 +96,10 @@ export default class App extends HelixApp(LitElement) {
 
     const sectionHeadline = document.querySelector('.jobs-container > div > h2');
     jobsStatsInner.prepend(sectionHeadline);
+  }
+
+  render() {
+    return html`<div><slot></slot></div>`;
   }
 }
 
