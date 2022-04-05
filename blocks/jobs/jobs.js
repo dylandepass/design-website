@@ -1,37 +1,52 @@
 import { lookupPages } from '../../scripts/scripts.js';
+import { LitElement, html, map } from '../../scripts/lit.min.js';
 
-function createJob(job) {
-  const jobItem = document.createElement('li');
-  jobItem.classList.add('cmp-jobs-list__item');
-  jobItem.innerHTML = `
-    <a class="cmp-job__link" href="${job.path}">${job.title}</a>
-    <p class="cmp-job__department">${job.department}</p>
-    <p class="cmp-job__location">${job.location}</p>
-  `;
-  return (jobItem);
+/* eslint-disable class-methods-use-this */
+
+export class Jobs extends LitElement {
+  static properties = {
+    pathNames: { type: Array },
+    jobs: { state: true, type: Array },
+  };
+
+  async connectedCallback() {
+    super.connectedCallback();
+    this.jobs = await lookupPages(this.pathNames);
+  }
+
+  createRenderRoot() {
+    return this;
+  }
+
+  renderJob(job) {
+    return html`
+      <li class="cmp-jobs-list__item">
+        <a class="cmp-job__link" href=${job.path}>${job.title}</a>
+        <p class="cmp-job__department">${job.department}</p>
+        <p class="cmp-job__location">${job.location}</p>
+      </li>
+    `;
+  }
+
+  render() {
+    return html`
+      <div class="jobs block">
+        <ul class="cmp-jobs-list">
+            ${map(this.jobs, (job) => this.renderJob(job))}
+        </ul>
+        <div class="cmp-jobs-view-all">
+          <a class="cmp-jobs-view-all__link" href="/jobs/"><span>View all job openings</span></a>
+        </div>
+      </div>
+    `;
+  }
 }
+customElements.define('jobs-element', Jobs);
 
 export default async function decorate(block) {
-  const pathnames = [...block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
-  const jobs = await lookupPages(pathnames);
-  const jobsList = document.createElement('ul');
-  jobsList.classList.add('cmp-jobs-list');
+  const pathNames = [...block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
+  const jobsElement = document.createElement('jobs-element');
+  jobsElement.setAttribute('pathNames', JSON.stringify(pathNames));
   block.innerHTML = '';
-  block.append(jobsList);
-
-  jobs.forEach((job) => {
-    jobsList.append(createJob(job));
-  });
-
-  const viewAllContainer = document.createElement('div');
-  viewAllContainer.classList.add('cmp-jobs-view-all');
-  const viewAllSpan = document.createElement('span');
-  const viewAllLink = document.createElement('a');
-  viewAllLink.classList.add('cmp-jobs-view-all__link');
-  viewAllLink.href = '/jobs/';
-  viewAllLink.append(viewAllSpan);
-  viewAllSpan.textContent = 'View all job openings';
-  viewAllContainer.append(viewAllLink);
-
-  block.append(viewAllContainer);
+  block.appendChild(jobsElement);
 }

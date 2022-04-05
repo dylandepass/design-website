@@ -1,4 +1,4 @@
-.home .people {
+.home .people people-element {
   background-color: transparent;
   display: grid;
   grid-template-columns: repeat(6, [col-start] 1fr);
@@ -78,7 +78,7 @@
 }
 
 @media (min-width: 900px) {
-  .home .people {
+  .home .people people-element {
     grid-template-columns: 1fr 1fr 1fr;
     column-gap: 12px;
     row-gap: 12px;

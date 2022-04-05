@@ -1,32 +1,48 @@
 import { lookupPages } from '../../scripts/scripts.js';
 import { createOptimizedPicture } from '../../scripts/core-scripts.js';
+import { LitElement, html, map } from '../../scripts/lit.min.js';
 
-export default async function decorate(block) {
-  const pathnames = [...block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
-  block.textContent = '';
-  const people = await lookupPages(pathnames);
-  people.forEach((row) => {
-    const person = document.createElement('article');
-    person.classList.add('cmp-person');
+/* eslint-disable class-methods-use-this */
+export class People extends LitElement {
+  static properties = {
+    pathNames: { type: Array },
+    people: { state: true, type: Array },
+  };
 
-    const imageLink = document.createElement('a');
-    imageLink.href = row.path;
-    imageLink.append(createOptimizedPicture(row.image, row.title));
+  async connectedCallback() {
+    super.connectedCallback();
+    this.people = await lookupPages(this.pathNames);
+  }
 
-    const personTitle = `${row.subtitle ? `<p class="cmp-person__title">${row.subtitle}</p>` : ''}`;
-    const tag = `${row.tag ? `<span class="cmp-person__tag">${row.tag}</span>` : ''}`;
+  createRenderRoot() {
+    return this;
+  }
 
-    person.innerHTML = `
-      <div class="cmp-person__body">
-        ${tag}
-        <h2 class="cmp-person__name">
-          <a href="${row.path}">${row.title}</a>
-        </h2>
-        ${personTitle}
-      </div>
-    `;
+  render() {
+    return html`
+      ${map(this.people, (person) => html`
+        <article class="cmp-person">
+          <a href=${person.path}>
+            ${createOptimizedPicture(person.image, person.title)}
+          </a>
+          <div class="cmp-person__body">
+            <span class="cmp-person__tag">${person.tag}</span>
+            <h2 class="cmp-person__name">
+              <a href=${person.path}>${person.title}</a>
+            </h2>
+            <p class="cmp-person__title">${person.subtitle}</p>
+          </div>
+        </article>
+      `)}`;
+  }
+}
 
-    person.prepend(imageLink);
-    block.append(person);
-  });
+customElements.define('people-element', People);
+
+export default function decorate($block) {
+  const pathNames = [...$block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
+  const peopleElement = document.createElement('people-element');
+  peopleElement.setAttribute('pathNames', JSON.stringify(pathNames));
+  $block.innerHTML = '';
+  $block.appendChild(peopleElement);
 }
