@@ -472,6 +472,22 @@ export function loadScript(url, callback, type) {
   return script;
 }
 
+export async function loadHeader(header, productionDomains) {
+  const headerBlock = buildBlock('header', '');
+  header.append(headerBlock);
+  decorateBlock(headerBlock);
+  await loadBlock(headerBlock);
+  makeLinksRelative(headerBlock, productionDomains);
+}
+
+export async function loadFooter(footer, productionDomains) {
+  const footerBlock = buildBlock('footer', '');
+  footer.append(footerBlock);
+  decorateBlock(footerBlock);
+  await loadBlock(footerBlock);
+  makeLinksRelative(footerBlock, productionDomains);
+}
+
 export function initHlx() {
   window.hlx = window.hlx || {};
   window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';

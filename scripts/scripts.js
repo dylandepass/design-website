@@ -16,6 +16,25 @@ import { LitElement, html } from './lit.min.js';
 import { getMetadata } from './core-scripts.js';
 import { HelixApp } from './HelixApp.js';
 
+export async function lookupPages(pathnames) {
+  if (!window.pageIndex) {
+    if (!window.queryIndexJson) {
+      const resp = await fetch('/query-index.json');
+      window.queryIndexJson = await resp.json();
+    }
+    const lookup = {};
+    const sheets = Object.keys(window.queryIndexJson).filter((e) => !e.startsWith(':'));
+    sheets.forEach((sh) => {
+      window.queryIndexJson[sh].data.forEach((row) => {
+        lookup[row.path] = row;
+      });
+    });
+    window.pageIndex = { data: window.queryIndexJson, lookup };
+  }
+  const result = pathnames.map((path) => window.pageIndex.lookup[path]).filter((e) => e);
+  return (result);
+}
+
 export default class App extends HelixApp(LitElement) {
   static properties = {
     config: { type: Object },
@@ -99,12 +118,17 @@ export default class App extends HelixApp(LitElement) {
   }
 
   render() {
-    return html`<div><slot></slot></div>`;
+    return html`<div>
+  <slot></slot>
+</div>`;
   }
 }
 
 customElements.define('adobe-design', App);
 
+/**
+ * Create app webcomponent
+ */
 const app = document.createElement('adobe-design');
 app.setAttribute('rumEnabled', true);
 app.setAttribute('config', JSON.stringify({
@@ -118,22 +142,3 @@ document.body.innerHTML = '';
 app.innerHTML = body;
 
 document.body.appendChild(app);
-
-export async function lookupPages(pathnames) {
-  if (!window.pageIndex) {
-    if (!window.queryIndexJson) {
-      const resp = await fetch('/query-index.json');
-      window.queryIndexJson = await resp.json();
-    }
-    const lookup = {};
-    const sheets = Object.keys(window.queryIndexJson).filter((e) => !e.startsWith(':'));
-    sheets.forEach((sh) => {
-      window.queryIndexJson[sh].data.forEach((row) => {
-        lookup[row.path] = row;
-      });
-    });
-    window.pageIndex = { data: window.queryIndexJson, lookup };
-  }
-  const result = pathnames.map((path) => window.pageIndex.lookup[path]).filter((e) => e);
-  return (result);
-}
