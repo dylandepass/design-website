@@ -190,7 +190,7 @@ export class Carousel extends LitElement {
       <li data-color=${story.color !== '' ? story.color : '#fff'} class="carousel-slide">
         <div class="carousel-slide-container">
           <div class="carousel-slide-content">
-            <div class="carousel-slide-copy hidden">
+            <div class="carousel-slide-copy">
               <span class="cmp-stories-card__tag">${story.tag}</span>
               <h2 class="carousel-stories-card__title"><a
                   href="/stories/leading-design/what-drives-adobe-design">${story.title}</a></h2>
