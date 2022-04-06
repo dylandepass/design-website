@@ -34,10 +34,8 @@ export class Carousel extends LitElement {
     window.addEventListener('resize', this.checkScrollIndicator);
     window.addEventListener('scroll', this.hideScrollIndicator.bind(this));
 
-    setTimeout(() => {
-      this.loadCarousel(this);
-      this.checkScrollIndicator();
-    }, 4000);
+    this.loadCarousel(this);
+    this.checkScrollIndicator();
   }
 
   init() {
