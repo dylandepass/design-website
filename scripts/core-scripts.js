@@ -359,6 +359,14 @@ export function createOptimizedPicture(src, alt = '', eager = false, breakpoints
   return picture;
 }
 
+export function optimizedImagePath(src, breakpoints = [{ media: '(min-width: 400px)', width: '2000' }, { width: '750' }]) {
+  const url = new URL(src, window.location.href);
+  const { pathname } = url;
+  const ext = pathname.substring(pathname.lastIndexOf('.') + 1);
+  const br = breakpoints[breakpoints.length - 1];
+  return `${pathname}?width=${br.width}&format=${ext}&optimize=medium`;
+}
+
 /**
  * Removes formatting from images.
  * @param {Element} main The container element

@@ -1,6 +1,6 @@
 import { LitElement, createRef, html, map, ref } from '../../scripts/lit.min.js';
 import { lookupPages, setBodyColor, colormap } from '../../scripts/scripts.js';
-import { createOptimizedPicture, loadScript } from '../../scripts/core-scripts.js';
+import { createOptimizedPicture, loadScript, optimizedImagePath } from '../../scripts/core-scripts.js';
 import carouselStyle from './carousel.css.js';
 
 /* eslint-disable class-methods-use-this */
@@ -255,6 +255,14 @@ customElements.define('carousel-element', Carousel);
 export default async function decorate($block) {
   const pathNames = [...$block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
   const stories = await lookupPages(pathNames);
+
+  const lcpImage = optimizedImagePath(stories[0].image);
+  const res = document.createElement('link');
+  res.rel = 'preload';
+  res.as = 'image';
+  res.href = lcpImage;
+  document.head.appendChild(res);
+
   document.documentElement.style.setProperty('--header-color', '#12358F');
   const carouselElement = document.createElement('carousel-element');
   carouselElement.setAttribute('stories', JSON.stringify(stories));
