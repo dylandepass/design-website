@@ -18,6 +18,9 @@ img, svg, picture {
   display: block;
   max-width: 100%;
 }
+.hidden {
+  visibility: hidden;
+}
 .dark-text .carousel-slide-content,
 .dark-text .carousel-slide-content a,
 .light-text .carousel-ui {
