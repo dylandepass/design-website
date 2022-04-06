@@ -29,162 +29,147 @@ import {
   registerPerformanceLogger,
 } from './core-scripts.js';
 
-export const HelixApp = (superClass) => {
-  class BaseApp extends superClass {
-    static properties = {
-      config: { type: Object },
-      rumEnabled: { type: Boolean },
-    };
+export class HelixApp {
+  constructor(config) {
+    console.log('constructor');
+    this.config = config;
+    this.rumEnabled = false;
+    initHlx();
 
-    constructor() {
-      super();
-      this.rumEnabled = false;
-      initHlx();
+    this.loadPage(document);
+
+    if (this.rumEnabled) {
+      this.sampleRUM('top');
+      window.addEventListener('load', () => sampleRUM('load'));
+      document.addEventListener('click', () => sampleRUM('click'));
     }
 
-    connectedCallback() {
-      super.connectedCallback();
-
-      this.loadPage(document);
-
-      if (this.rumEnabled) {
-        this.sampleRUM('top');
-        window.addEventListener('load', () => sampleRUM('load'));
-        document.addEventListener('click', () => sampleRUM('click'));
-      }
-
-      if (window.name.includes('performance')) {
-        registerPerformanceLogger();
-      }
-    }
-
-    createRenderRoot() {
-      return this;
-    }
-
-    sampleRUM(event) {
-      sampleRUM(event, this.config.rumGeneration);
-    }
-
-    /**
-     * Decorates the page.
-     */
-    async loadPage(doc) {
-      await this.loadEager(doc);
-
-      const main = doc.querySelector('main');
-      if (main) {
-        this.decorateMain(main);
-        await waitForLCP(this.config.lcpBlocks);
-        console.log('lcp loaded');
-      }
-
-      await this.loadLazy(doc);
-      this.loadDelayed(doc);
-    }
-
-    /**
-     * loads everything needed to get to LCP.
-     */
-    async loadEager(doc) {
-      return Promise.resolve(doc);
-    }
-
-    /**
-     * Decorates the main element.
-     * @param {Element} main The main element
-     */
-    decorateMain(main) {
-      // forward compatible pictures redecoration
-      this.decoratePictures(main);
-      this.removeStylingFromImages(main);
-      this.makeLinksRelative(main, this.config.productionDomains);
-      this.decorateSections(main);
-      this.decorateBlocks(main);
-    }
-
-    /**
-     * loads everything that doesn't need to be delayed.
-     */
-    async loadLazy(doc) {
-      const main = doc.querySelector('main');
-      await loadBlocks(main);
-
-      this.loadHeader(doc.querySelector('header'));
-      this.loadFooter(doc.querySelector('footer'));
-
-      loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
-    }
-
-    /**
-     * loads everything that happens a lot later, without impacting
-     * the user experience.
-     */
-    loadDelayed() {
-      addFavIcon(`${window.hlx.codeBasePath}/icon.svg`);
-    }
-
-    /**
-     *
-     * Override these methods to add custom behavior.
-     *
-     */
-
-    /**
-     * Loads the header block.
-     * @param {Element} header The header element
-     */
-    async loadHeader(header) {
-      loadHeader(header, this.config.productionDomains);
-    }
-
-    /**
-     * Loads the footer block.
-     * @param {Element} footer The footer element
-     */
-    async loadFooter(footer) {
-      loadFooter(footer, this.config.productionDomains);
-    }
-
-    /**
-     * Removes formatting from images.
-     * @param {Element} main The container element
-     */
-    removeStylingFromImages(main) {
-      removeStylingFromImages(main);
-    }
-
-    /**
-     * Turns absolute links within the domain into relative links.
-     * @param {Element} main The container element
-     */
-    makeLinksRelative(main, productionDomains) {
-      makeLinksRelative(main, productionDomains);
-    }
-
-    /**
-     * Decorates all sections in a container element.
-     * @param {Element} $main The container element
-     */
-    decorateSections(main) {
-      decorateSections(main);
-    }
-
-    /**
-     * Decorates all blocks in a container element.
-     * @param {Element} $main The container element
-     */
-    decorateBlocks(main) {
-      decorateBlocks(main);
-    }
-
-    /**
-     * Decorates the picture elements.
-     * @param {Element} main The container element
-     */
-    decoratePictures(main) {
-      decoratePictures(main);
+    if (window.name.includes('performance')) {
+      registerPerformanceLogger();
     }
   }
-  return BaseApp;
-};
+
+  sampleRUM(event) {
+    sampleRUM(event, this.config.rumGeneration);
+  }
+
+  /**
+   * Decorates the page.
+   */
+  async loadPage(doc) {
+    await this.loadEager(doc);
+
+    const main = doc.querySelector('main');
+    if (main) {
+      this.decorateMain(main);
+      await waitForLCP(this.config.lcpBlocks);
+      console.log('lcp loaded');
+    }
+
+    await this.loadLazy(doc);
+    this.loadDelayed(doc);
+  }
+
+  /**
+   * loads everything needed to get to LCP.
+   */
+  async loadEager(doc) {
+    return Promise.resolve(doc);
+  }
+
+  /**
+   * Decorates the main element.
+   * @param {Element} main The main element
+   */
+  decorateMain(main) {
+    // forward compatible pictures redecoration
+    this.decoratePictures(main);
+    this.removeStylingFromImages(main);
+    this.makeLinksRelative(main, this.config.productionDomains);
+    this.decorateSections(main);
+    this.decorateBlocks(main);
+  }
+
+  /**
+   * loads everything that doesn't need to be delayed.
+   */
+  async loadLazy(doc) {
+    const main = doc.querySelector('main');
+    await loadBlocks(main);
+
+    this.loadHeader(doc.querySelector('header'));
+    this.loadFooter(doc.querySelector('footer'));
+
+    loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
+  }
+
+  /**
+   * loads everything that happens a lot later, without impacting
+   * the user experience.
+   */
+  loadDelayed() {
+    addFavIcon(`${window.hlx.codeBasePath}/icon.svg`);
+  }
+
+  /**
+   *
+   * Override these methods to add custom behavior.
+   *
+   */
+
+  /**
+   * Loads the header block.
+   * @param {Element} header The header element
+   */
+  async loadHeader(header) {
+    loadHeader(header, this.config.productionDomains);
+  }
+
+  /**
+   * Loads the footer block.
+   * @param {Element} footer The footer element
+   */
+  async loadFooter(footer) {
+    loadFooter(footer, this.config.productionDomains);
+  }
+
+  /**
+   * Removes formatting from images.
+   * @param {Element} main The container element
+   */
+  removeStylingFromImages(main) {
+    removeStylingFromImages(main);
+  }
+
+  /**
+   * Turns absolute links within the domain into relative links.
+   * @param {Element} main The container element
+   */
+  makeLinksRelative(main, productionDomains) {
+    makeLinksRelative(main, productionDomains);
+  }
+
+  /**
+   * Decorates all sections in a container element.
+   * @param {Element} $main The container element
+   */
+  decorateSections(main) {
+    decorateSections(main);
+  }
+
+  /**
+   * Decorates all blocks in a container element.
+   * @param {Element} $main The container element
+   */
+  decorateBlocks(main) {
+    decorateBlocks(main);
+  }
+
+  /**
+   * Decorates the picture elements.
+   * @param {Element} main The container element
+   */
+  decoratePictures(main) {
+    decoratePictures(main);
+  }
+}

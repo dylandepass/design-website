@@ -10,9 +10,8 @@
  * governing permissions and limitations under the License.
  */
 
-/* eslint-disable class-methods-use-this */
+/* eslint-disable class-methods-use-this, no-new */
 
-import { LitElement } from './lit.min.js';
 import { getMetadata } from './core-scripts.js';
 import { HelixApp } from './HelixApp.js';
 
@@ -35,15 +34,10 @@ export async function lookupPages(pathnames) {
   return (result);
 }
 
-// lookupPages([]);
+export class App extends HelixApp {
+  constructor(config) {
+    super(config);
 
-export default class App extends HelixApp(LitElement) {
-  static properties = {
-    config: { type: Object },
-  };
-
-  connectedCallback() {
-    super.connectedCallback();
     if (window.location.pathname === '/') {
       setTimeout(() => {
         this.decorateHomeJobsStats();
@@ -121,21 +115,11 @@ export default class App extends HelixApp(LitElement) {
   }
 }
 
-customElements.define('adobe-design', App);
-
 /**
  * Create app webcomponent
  */
-const app = document.createElement('adobe-design');
-app.setAttribute('rumEnabled', true);
-app.setAttribute('config', JSON.stringify({
+new App({
   rumGeneration: 'design-website-1',
   productionDomains: ['adobe.design'],
   lcpBlocks: ['hero', 'carousel'],
-}));
-
-const body = document.body.innerHTML;
-document.body.innerHTML = '';
-app.innerHTML = body;
-
-document.body.appendChild(app);
+});
