@@ -255,9 +255,21 @@ customElements.define('carousel-element', Carousel);
 export default async function decorate($block) {
   const pathNames = [...$block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
   const stories = await lookupPages(pathNames);
-  document.documentElement.style.setProperty('--header-color', '#12358F');
-  const carouselElement = document.createElement('carousel-element');
-  carouselElement.setAttribute('stories', JSON.stringify(stories));
-  $block.innerHTML = '';
-  $block.appendChild(carouselElement);
+  return new Promise((resolve) => {
+    document.documentElement.style.setProperty('--header-color', '#12358F');
+    const carouselElement = document.createElement('carousel-element');
+    carouselElement.setAttribute('stories', JSON.stringify(stories));
+    $block.innerHTML = '';
+    $block.appendChild(carouselElement);
+
+    const lcpImagePath = optimizedImagePath(stories[0].image);
+    const lcpImage = new Image();
+    lcpImage.src = lcpImagePath;
+    lcpImage.loading = 'eager';
+
+    lcpImage.onload = () => {
+      console.log('lcp image loaded');
+      resolve();
+    };
+  });
 }
