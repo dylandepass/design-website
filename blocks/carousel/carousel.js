@@ -1,9 +1,7 @@
 import { LitElement, createRef, html, map, ref } from '../../scripts/lit.min.js';
-import setBodyColor from '../../scripts/body-color.js';
-import { lookupPages } from '../../scripts/scripts.js';
+import { lookupPages, setBodyColor, colormap } from '../../scripts/scripts.js';
 import { createOptimizedPicture, loadScript } from '../../scripts/core-scripts.js';
 import carouselStyle from './carousel.css.js';
-import colormap from '../../scripts/colormap.js';
 
 /* eslint-disable class-methods-use-this */
 

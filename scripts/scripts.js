@@ -15,6 +15,31 @@
 import { getMetadata } from './core-scripts.js';
 import { HelixApp } from './HelixApp.js';
 
+export const colormap = {
+  '#fff': 'black',
+  '#ffffff': 'black',
+  '#FFFFFF': 'black',
+  '#12358F': 'white',
+  '#FFE255': 'black',
+  '#E91D25': 'white',
+  '#FCBB7B': 'black',
+  '#FAE7E3': 'black',
+  '#171717': 'white',
+  '#F3AA4D': 'black',
+  '#D96242': 'white',
+  '#B2DDC5': 'black',
+  '#3021A0': 'white',
+  '#D24D56': 'white',
+  '#3F1069': 'white',
+  '#D2FA48': 'black',
+  '#F0E8DD': 'black',
+  '#C9E3F6': 'black',
+  '#ffe055': 'black',
+  '#171f44': 'white',
+  '#e7af94': 'black',
+  '#2b2b2b': 'white',
+};
+
 export async function lookupPages(pathnames) {
   if (!window.pageIndex) {
     if (!window.queryIndexJson) {
@@ -116,10 +141,36 @@ export class App extends HelixApp {
 }
 
 /**
- * Create app webcomponent
+ * Decorate Page
  */
 new App({
   rumGeneration: 'design-website-1',
   productionDomains: ['adobe.design'],
   lcpBlocks: ['hero', 'carousel'],
 });
+
+export function setBodyColor(color) {
+  if (colormap[color] === 'black') {
+    document.body.classList.remove('light-text');
+    document.body.classList.add('dark-text');
+  } else {
+    document.body.classList.remove('dark-text');
+    document.body.classList.add('light-text');
+  }
+}
+
+function setPageBackgroundColor() {
+  const pageBgColor = (getMetadata('color') !== null && getMetadata('color') !== '') ? getMetadata('color') : '#fff';
+  setBodyColor(pageBgColor);
+
+  const blendedBackground = document.createElement('div');
+  blendedBackground.classList.add('blended-background');
+  blendedBackground.style.setProperty('--blended-background-color', pageBgColor);
+
+  document.body.append(blendedBackground);
+  document.documentElement.style.setProperty('--header-color', pageBgColor);
+}
+
+if (window.location.pathname !== '/') {
+  setPageBackgroundColor();
+}
