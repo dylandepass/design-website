@@ -33,17 +33,21 @@ export class Carousel extends LitElement {
     const firstStory = this.stories[0];
     setBodyColor(firstStory.color);
 
-    this.loadCarousel(this);
-    this.checkScrollIndicator();
-
     window.addEventListener('resize', this.checkScrollIndicator);
     window.addEventListener('scroll', this.hideScrollIndicator.bind(this));
+
+    setTimeout(() => {
+      this.loadCarousel(this);
+      this.checkScrollIndicator();
+    }, 4000);
   }
 
   init() {
     if (this.initialized) {
       return;
     }
+
+    this.carouselGroup.value.classList.remove('hidden');
 
     this.progressWrap = this.gsap.utils.wrap(0, 1);
     this.numSlides = this.slides.length;
@@ -76,8 +80,6 @@ export class Carousel extends LitElement {
     this.initialized = true;
 
     this.resize();
-
-    this.carouselGroup.value.classList.remove('hidden');
   }
 
   async loadCarousel() {
@@ -187,7 +189,7 @@ export class Carousel extends LitElement {
 
   renderSlide(story, i) {
     return html`
-      <li data-color=${story.color !=='' ? story.color : '#fff' } class="carousel-slide">
+      <li data-color=${story.color !== '' ? story.color : '#fff'} class="carousel-slide">
         <div class="carousel-slide-container">
           <div class="carousel-slide-content">
             <div class="carousel-slide-copy hidden">
@@ -207,6 +209,7 @@ export class Carousel extends LitElement {
   }
 
   render() {
+    console.log('rending caro');
     return html`
         <div class="carousel-group hidden" ${ref(this.carouselGroup)}>
           <ul class="carousel-slides ${this.textColor}" style="width: 300%;">
@@ -225,8 +228,8 @@ export class Carousel extends LitElement {
                   </g>
                 </svg>
               </div>
-              <div class="carousel-btn carousel-btn-prev" @click=${()=> this.changeSlide(1)}></div>
-              <div class="carousel-btn carousel-btn-next" @click=${()=> this.changeSlide(-1)}></div>
+              <div class="carousel-btn carousel-btn-prev" @click=${() => this.changeSlide(1)}></div>
+              <div class="carousel-btn carousel-btn-next" @click=${() => this.changeSlide(-1)}></div>
             </div>
           </div>
         </div>
