@@ -58,6 +58,10 @@ export const HelixApp = (superClass) => {
       }
     }
 
+    createRenderRoot() {
+      return this;
+    }
+
     sampleRUM(event) {
       sampleRUM(event, this.config.rumGeneration);
     }
@@ -72,6 +76,7 @@ export const HelixApp = (superClass) => {
       if (main) {
         this.decorateMain(main);
         await waitForLCP(this.config.lcpBlocks);
+        console.log('lcp loaded');
       }
 
       await this.loadLazy(doc);
@@ -109,14 +114,15 @@ export const HelixApp = (superClass) => {
       this.loadFooter(doc.querySelector('footer'));
 
       loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
-      addFavIcon(`${window.hlx.codeBasePath}/icon.svg`);
     }
 
     /**
      * loads everything that happens a lot later, without impacting
      * the user experience.
      */
-    loadDelayed() { }
+    loadDelayed() {
+      addFavIcon(`${window.hlx.codeBasePath}/icon.svg`);
+    }
 
     /**
      *

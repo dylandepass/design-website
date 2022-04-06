@@ -11,8 +11,7 @@ export class Carousel extends LitElement {
   static styles = [carouselStyle];
 
   static properties = {
-    pathNames: { type: Array },
-    stories: { state: true, type: Array },
+    stories: { type: Array },
     textColor: { state: true, type: String },
   };
 
@@ -30,7 +29,6 @@ export class Carousel extends LitElement {
 
   async connectedCallback() {
     super.connectedCallback();
-    this.stories = await lookupPages(this.pathNames);
 
     const firstStory = this.stories[0];
     setBodyColor(firstStory.color);
@@ -167,12 +165,14 @@ export class Carousel extends LitElement {
 
     const contianer = document.querySelector('.stories-container');
     const rect = contianer.getBoundingClientRect();
-    const indicator = this.renderRoot.querySelector('.carousel-indicator-scroll');
+    const indicator = document.querySelector('.carousel-indicator-scroll');
 
-    if (rect.top < window.innerHeight) {
-      indicator.classList.remove('show');
-    } else {
-      indicator.classList.add('show');
+    if (indicator) {
+      if (rect.top < window.innerHeight) {
+        indicator.classList.remove('show');
+      } else {
+        indicator.classList.add('show');
+      }
     }
   }
 
@@ -251,11 +251,12 @@ export class Carousel extends LitElement {
 
 customElements.define('carousel-element', Carousel);
 
-export default function decorate($block) {
+export default async function decorate($block) {
   const pathNames = [...$block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
+  const stories = await lookupPages(pathNames);
   document.documentElement.style.setProperty('--header-color', '#12358F');
   const carouselElement = document.createElement('carousel-element');
-  carouselElement.setAttribute('pathNames', JSON.stringify(pathNames));
+  carouselElement.setAttribute('stories', JSON.stringify(stories));
   $block.innerHTML = '';
   $block.appendChild(carouselElement);
 }

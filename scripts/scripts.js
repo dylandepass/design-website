@@ -12,7 +12,7 @@
 
 /* eslint-disable class-methods-use-this */
 
-import { LitElement, html } from './lit.min.js';
+import { LitElement } from './lit.min.js';
 import { getMetadata } from './core-scripts.js';
 import { HelixApp } from './HelixApp.js';
 
@@ -34,6 +34,8 @@ export async function lookupPages(pathnames) {
   const result = pathnames.map((path) => window.pageIndex.lookup[path]).filter((e) => e);
   return (result);
 }
+
+// lookupPages([]);
 
 export default class App extends HelixApp(LitElement) {
   static properties = {
@@ -68,6 +70,7 @@ export default class App extends HelixApp(LitElement) {
    * the user experience.
    */
   loadDelayed() {
+    super.loadDelayed();
     // load anything that can be postponed to the latest here
     // setTimeout(() => {
     //   loadScript('https://assets.adobedtm.com/a7d65461e54e/9ee19a80de10/launch-882c01867cbb.min.js');
@@ -115,12 +118,6 @@ export default class App extends HelixApp(LitElement) {
 
     const sectionHeadline = document.querySelector('.jobs-container > div > h2');
     jobsStatsInner.prepend(sectionHeadline);
-  }
-
-  render() {
-    return html`<div>
-  <slot></slot>
-</div>`;
   }
 }
 
