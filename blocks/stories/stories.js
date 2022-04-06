@@ -28,10 +28,9 @@ export class Stories extends LitElement {
     const textColor = colormap[rowColor] === 'black' ? 'dark-text' : 'light-text';
 
     return html`
-      <article class="cmp-stories-card ${textColor}" style="background-color: xxxxxxxxxxx">
+      <article class="cmp-stories-card ${textColor}" style="background-color: ${rowColor}">
         <a href=${story.path}>
-          ${createOptimizedPicture(story.image, story.title, false, [{ media: '(min-width: 400px)', width: '2000' }, { width:
-          '750' }], ['cmp-stories-card__media'])}
+          ${createOptimizedPicture(story.image, story.title, false, [{ media: '(min-width: 400px)', width: '2000' }, { width: '750' }], ['cmp-stories-card__media'])}
         </a>
         <div class="cmp-stories-card__body">
           <span class="cmp-stories-card__tag">${story.tag !== '' ? `${story.tag}` : ''}</span>
