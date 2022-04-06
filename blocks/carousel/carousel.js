@@ -255,14 +255,6 @@ customElements.define('carousel-element', Carousel);
 export default async function decorate($block) {
   const pathNames = [...$block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
   const stories = await lookupPages(pathNames);
-
-  const lcpImage = optimizedImagePath(stories[0].image);
-  const res = document.createElement('link');
-  res.rel = 'preload';
-  res.as = 'image';
-  res.href = lcpImage;
-  document.head.appendChild(res);
-
   document.documentElement.style.setProperty('--header-color', '#12358F');
   const carouselElement = document.createElement('carousel-element');
   carouselElement.setAttribute('stories', JSON.stringify(stories));
