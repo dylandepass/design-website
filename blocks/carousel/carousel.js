@@ -33,7 +33,6 @@ export class Carousel extends LitElement {
     this.textColor = colormap[firstStory.color] === 'black' ? 'dark-text' : 'light-text';
     document.documentElement.style.setProperty('--text-color', colormap[firstStory.color] === 'black' ? 'var(--color-base-dark-slate)' : 'var(--color-base-white)');
     document.documentElement.style.setProperty('--header-color', firstStory.color);
-    console.log('color set');
 
     window.addEventListener('resize', this.checkScrollIndicator);
     window.addEventListener('scroll', this.hideScrollIndicator.bind(this));
@@ -211,7 +210,6 @@ export class Carousel extends LitElement {
   }
 
   render() {
-    console.log('rending caro');
     return html`
         <div class="carousel-group hidden" ${ref(this.carouselGroup)}>
           <ul class="carousel-slides ${this.textColor}" style="width: 300%;">

@@ -31,7 +31,6 @@ import {
 
 export class HelixApp {
   constructor(config) {
-    console.log('constructor');
     this.config = config;
     this.rumEnabled = false;
     initHlx();
@@ -63,7 +62,6 @@ export class HelixApp {
     if (main) {
       this.decorateMain(main);
       await waitForLCP(this.config.lcpBlocks);
-      console.log('lcp loaded');
     }
 
     await this.loadLazy(doc);
