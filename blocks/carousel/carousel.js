@@ -30,6 +30,10 @@ export class Carousel extends LitElement {
 
     const firstStory = this.stories[0];
     setBodyColor(firstStory.color);
+    this.textColor = colormap[firstStory.color] === 'black' ? 'dark-text' : 'light-text';
+    document.documentElement.style.setProperty('--text-color', colormap[firstStory.color] === 'black' ? 'var(--color-base-dark-slate)' : 'var(--color-base-white)');
+    document.documentElement.style.setProperty('--header-color', firstStory.color);
+    console.log('color set');
 
     window.addEventListener('resize', this.checkScrollIndicator);
     window.addEventListener('scroll', this.hideScrollIndicator.bind(this));
@@ -37,7 +41,7 @@ export class Carousel extends LitElement {
     setTimeout(() => {
       this.loadCarousel(this);
       this.checkScrollIndicator();
-    }, 4000);
+    }, 100);
   }
 
   init() {
@@ -256,7 +260,6 @@ export default async function decorate($block) {
   const pathNames = [...$block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
   const stories = await lookupPages(pathNames);
 
-  document.documentElement.style.setProperty('--header-color', '#12358F');
   const carouselElement = document.createElement('carousel-element');
   carouselElement.setAttribute('stories', JSON.stringify(stories));
   $block.innerHTML = '';
