@@ -1,5 +1,5 @@
 export default async function decorate() {
-  const wrapper = document.querySelector('.inclusive-design .section-wrapper');
+  const wrapper = document.querySelector('.inclusive-design .section');
   wrapper.classList.add('inclusive-card-container');
   wrapper.firstChild.classList.add('inclusive-card-container__inner');
 
