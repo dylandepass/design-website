@@ -1,6 +1,7 @@
 import {
-  createOptimizedPicture, lookupPages,
+  lookupPages,
 } from '../../scripts/scripts.js';
+import { createOptimizedPicture } from '../../scripts/helix-web-library.esm.min.js';
 import colormap from '../../scripts/colormap.js';
 
 function createCard(row) {

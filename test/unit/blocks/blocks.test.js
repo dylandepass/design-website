@@ -71,7 +71,7 @@ describe('Block tests', () => {
       decorateMain(doc.querySelector('main'));
 
       let block = doc.querySelector('main > div > div');
-      if (block.classList.contains('section-wrapper')) {
+      if (block.classList.contains('section')) {
         // input file contains section, look for block inside it
         block = block.querySelector(':scope > div > div');
       }

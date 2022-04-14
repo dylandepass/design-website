@@ -1,4 +1,5 @@
-import { createOptimizedPicture, lookupPages } from '../../scripts/scripts.js';
+import { lookupPages } from '../../scripts/scripts.js';
+import { createOptimizedPicture } from '../../scripts/helix-web-library.esm.min.js';
 
 export default async function decorate(block) {
   const pathnames = [...block.querySelectorAll('a')].map((a) => new URL(a.href).pathname);
