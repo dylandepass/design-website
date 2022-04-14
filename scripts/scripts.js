@@ -12,7 +12,7 @@
 
 /* eslint-disable class-methods-use-this, no-new, import/no-unresolved */
 
-import { HelixApp, getMetadata } from './helix-web-library.esm.min.js';
+import { HelixApp, getMetadata } from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
 
 export const colormap = {
   '#fff': 'black',

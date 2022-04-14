@@ -1,6 +1,6 @@
 import setBodyColor from '../../scripts/body-color.js';
 import { lookupPages } from '../../scripts/scripts.js';
-import { createOptimizedPicture, loadScript } from '../../scripts/helix-web-library.esm.min.js';
+import { createOptimizedPicture, loadScript } from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
 
 class Carousel {
   initialized = false;
