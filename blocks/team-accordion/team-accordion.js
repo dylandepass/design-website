@@ -1,4 +1,4 @@
-import { getMetadata, loadScript } from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
+import { getMetadata, loadScript } from '../../scripts/helix-web-library.esm.min.js';
 
 let visibleCardArea = 250;
 

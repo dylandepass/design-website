@@ -1,6 +1,6 @@
 import { LitElement, createRef, html, map, ref } from '../../scripts/lit.min.js';
 import { lookupPages, setBodyColor, colormap } from '../../scripts/scripts.js';
-import { createOptimizedPicture, loadScript, getOptimizedImagePath } from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
+import { createOptimizedPicture, loadScript, getOptimizedImagePath } from '../../scripts/helix-web-library.esm.min.js';
 import carouselStyle from './carousel.css.js';
 
 /* eslint-disable class-methods-use-this */

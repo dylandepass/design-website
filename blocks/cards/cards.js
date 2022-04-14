@@ -1,9 +1,9 @@
 import {
-  lookupPages, colormap
+  lookupPages, colormap,
 } from '../../scripts/scripts.js';
 import {
   getMetadata, createOptimizedPicture,
-} from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
+} from '../../scripts/helix-web-library.esm.min.js';
 
 export const isInclusiveDesignPage = getMetadata('theme') === 'inclusive-design';
 

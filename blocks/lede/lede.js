@@ -1,4 +1,4 @@
-import { getMetadata, toClassName } from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
+import { getMetadata, toClassName } from '../../scripts/helix-web-library.esm.min.js';
 
 export default async function decorate(block) {
   const ledeBlock = block;

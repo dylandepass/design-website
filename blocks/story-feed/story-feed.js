@@ -1,5 +1,5 @@
 import { lookupPages } from '../../scripts/scripts.js';
-import { createOptimizedPicture, readBlockConfig } from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
+import { createOptimizedPicture, readBlockConfig } from '../../scripts/helix-web-library.esm.min.js';
 
 function createCard(row) {
   const card = document.createElement('article');
