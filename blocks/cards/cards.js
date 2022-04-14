@@ -3,7 +3,7 @@ import {
 } from '../../scripts/scripts.js';
 import {
   getMetadata, createOptimizedPicture,
-} from '../../scripts/core-scripts.js';
+} from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
 
 export const isInclusiveDesignPage = getMetadata('theme') === 'inclusive-design';
 

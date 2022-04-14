@@ -1,5 +1,5 @@
 import { lookupPages, colormap } from '../../scripts/scripts.js';
-import { createOptimizedPicture } from '../../scripts/core-scripts.js';
+import { createOptimizedPicture } from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.13/dist/helix-web-library.esm.min.js';
 import { LitElement, html, map } from '../../scripts/lit.min.js';
 
 /* eslint-disable class-methods-use-this */
