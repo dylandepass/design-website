@@ -10,10 +10,9 @@
  * governing permissions and limitations under the License.
  */
 
-/* eslint-disable class-methods-use-this, no-new */
+/* eslint-disable class-methods-use-this, no-new, import/no-unresolved */
 
-import { getMetadata } from './core-scripts.js';
-import { HelixApp } from './HelixApp.js';
+import { HelixApp, getMetadata } from 'https://cdn.skypack.dev/@dylandepass/helix-web-library@v1.3.12/dist/helix-web-library.esm.min.js';
 
 export const colormap = {
   '#fff': 'black',
@@ -59,96 +58,6 @@ export async function lookupPages(pathnames) {
   return (result);
 }
 
-export class App extends HelixApp {
-  constructor(config) {
-    super(config);
-
-    if (window.location.pathname === '/') {
-      setTimeout(() => {
-        this.decorateHomeJobsStats();
-      }, 4000);
-    }
-
-    this.addPathsAsClassNames();
-  }
-
-  addPathsAsClassNames() {
-    if (window.location.pathname === '/') {
-      document.body.classList.add('home');
-    } else if (window.location.pathname === '/404.html') {
-      document.body.classList.add('page-not-found', 'light-text');
-    } else {
-      const pathNames = window.location.pathname.toLowerCase().split('/').filter((item) => item !== '').slice(0, 2);
-      if (getMetadata('theme') !== null && getMetadata('theme') === 'profile') pathNames.push('profile');
-      document.body.classList.add(...pathNames);
-    }
-  }
-
-  /**
-   * loads everything that happens a lot later, without impacting
-   * the user experience.
-   */
-  loadDelayed() {
-    super.loadDelayed();
-    // load anything that can be postponed to the latest here
-    // setTimeout(() => {
-    //   loadScript('https://assets.adobedtm.com/a7d65461e54e/9ee19a80de10/launch-882c01867cbb.min.js');
-    // }, 4000);
-  }
-
-  /**
-   * loads everything needed to get to LCP.
-   */
-  async loadEager() {
-    const redirect = getMetadata('redirect');
-    const usp = new URLSearchParams(window.location.search);
-    if (redirect) {
-      if (!usp.get('redirect') && (window.location.hostname.endsWith('localhost') || window.location.hostname.endsWith('.page'))) {
-        const redirectBanner = document.createElement('div');
-        redirectBanner.innerHTML = `Redirect set to <a href="${redirect}">${redirect}</a>`;
-        redirectBanner.setAttribute('style', `
-      background-color: #ddd;
-      color: #222;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 16px;
-      position: fixed;
-      z-index: 1;
-      display: block;
-      `);
-        document.querySelector('main').prepend(redirectBanner);
-      } else {
-        window.location.href = redirect;
-      }
-    }
-  }
-
-  decorateHomeJobsStats() {
-    const mainEl = document.querySelector('main');
-    const itemsToWrap = document.querySelectorAll('.jobs-container, .stats-container');
-    const jobsStatsContainer = document.createElement('div');
-    const jobsStatsInner = document.createElement('div');
-    jobsStatsContainer.classList.add('cmp-jobs-stats-container');
-    jobsStatsInner.classList.add('cmp-jobs-stats-container__inner-wrap');
-    jobsStatsContainer.append(jobsStatsInner);
-    jobsStatsInner.append(...itemsToWrap);
-    mainEl.append(jobsStatsContainer);
-
-    const sectionHeadline = document.querySelector('.jobs-container > div > h2');
-    jobsStatsInner.prepend(sectionHeadline);
-  }
-}
-
-/**
- * Decorate Page
- */
-new App({
-  rumGeneration: 'design-website-1',
-  productionDomains: ['adobe.design'],
-  lcpBlocks: ['hero', 'carousel'],
-});
-
 export function setBodyColor(color) {
   if (colormap[color] === 'black') {
     document.body.classList.remove('light-text');
@@ -171,6 +80,76 @@ function setPageBackgroundColor() {
   document.documentElement.style.setProperty('--header-color', pageBgColor);
 }
 
-if (window.location.pathname !== '/') {
-  setPageBackgroundColor();
+function addPathsAsClassNames() {
+  if (window.location.pathname === '/') {
+    document.body.classList.add('home');
+  } else if (window.location.pathname === '/404.html') {
+    document.body.classList.add('page-not-found', 'light-text');
+  } else {
+    const pathNames = window.location.pathname.toLowerCase().split('/').filter((item) => item !== '').slice(0, 2);
+    if (getMetadata('theme') !== null && getMetadata('theme') === 'profile') pathNames.push('profile');
+    document.body.classList.add(...pathNames);
+  }
 }
+
+function decorateHomeJobsStats() {
+  const mainEl = document.querySelector('main');
+  const itemsToWrap = document.querySelectorAll('.jobs-container, .stats-container');
+  const jobsStatsContainer = document.createElement('div');
+  const jobsStatsInner = document.createElement('div');
+  jobsStatsContainer.classList.add('cmp-jobs-stats-container');
+  jobsStatsInner.classList.add('cmp-jobs-stats-container__inner-wrap');
+  jobsStatsContainer.append(jobsStatsInner);
+  jobsStatsInner.append(...itemsToWrap);
+  mainEl.append(jobsStatsContainer);
+
+  const sectionHeadline = document.querySelector('.jobs-container > div > h2');
+  jobsStatsInner.prepend(sectionHeadline);
+}
+
+/**
+ * loads everything needed to get to LCP.
+ */
+async function loadEager() {
+  const redirect = getMetadata('redirect');
+  const usp = new URLSearchParams(window.location.search);
+  if (redirect) {
+    if (!usp.get('redirect') && (window.location.hostname.endsWith('localhost') || window.location.hostname.endsWith('.page'))) {
+      const redirectBanner = document.createElement('div');
+      redirectBanner.innerHTML = `Redirect set to <a href="${redirect}">${redirect}</a>`;
+      redirectBanner.setAttribute('style', `
+      background-color: #ddd;
+      color: #222;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      position: fixed;
+      z-index: 1;
+      display: block;
+      `);
+      document.querySelector('main').prepend(redirectBanner);
+    } else {
+      window.location.href = redirect;
+    }
+  }
+
+  if (window.location.pathname !== '/') {
+    setPageBackgroundColor();
+  } else {
+    setTimeout(() => {
+      decorateHomeJobsStats();
+    }, 4000);
+  }
+
+  addPathsAsClassNames();
+}
+
+HelixApp.init({
+  rumEnabled: true,
+  rumGeneration: 'design-website-1',
+  productionDomains: ['adobe.design'],
+  lcpBlocks: ['hero', 'carousel'],
+})
+  .withLoadEager(loadEager)
+  .decorate();
